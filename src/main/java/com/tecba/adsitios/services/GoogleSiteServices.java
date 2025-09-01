@@ -1,0 +1,68 @@
+package com.tecba.adsitios.services;
+
+import com.tecba.adsitios.dtos.Accounts;
+import com.tecba.adsitios.dtos.Locations;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.Collections;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class GoogleSiteServices {
+
+    @Value("${google.sites.information}")
+    private  String sitesInformation;
+    @Value("${google.sites.verification}")
+    private  String sitesVerification;
+    @Value("${google.sites.account.management}")
+    private  String sitesAccountManagement;
+
+    private final AuthService authService;
+
+    private final Logger log = LoggerFactory.getLogger(GoogleSiteServices.class);
+
+    public Accounts getAccounts(){
+        String token = authService.getToken();
+
+        WebClient client = WebClient.builder()
+                .baseUrl(sitesAccountManagement)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+
+        return client.get()
+                .uri("/accounts")
+                .retrieve()
+                .bodyToMono(Accounts.class)
+                .block();
+
+    }
+
+    public Locations getLocations(String nameAccount){
+        String token = authService.getToken();
+        String locationParams="/locations?readMask=storeCode,regularHours,name,languageCode,title,phoneNumbers," +
+                "categories,storefrontAddress,websiteUri,regularHours,specialHours,serviceArea,labels,adWordsLocationExtensions," +
+                "latlng,openInfo,metadata,profile,relationshipData,moreHours";
+
+        WebClient client = WebClient.builder()
+                .baseUrl(sitesInformation)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .build();
+
+        return client.get()
+                .uri(nameAccount+locationParams)
+                .retrieve()
+                .bodyToMono(Locations.class)
+                .block();
+    }
+
+}
