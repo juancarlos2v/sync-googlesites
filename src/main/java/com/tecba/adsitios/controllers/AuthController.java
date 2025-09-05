@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/ads-google")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -20,16 +20,7 @@ public class AuthController {
 
     @GetMapping("/cuentas")
     public Accounts sincronizarCuentas() {
-        return googleSiteServices.getAccounts("");
+        return googleSiteServices.getGroups("");
     }
 
-    @GetMapping("/sitios")
-    public Locations getLocations(@RequestParam String nameAccount){
-        return googleSiteServices.getLocations(nameAccount);
-    }
-
-    @GetMapping("/sync-cuentas")
-    public void syncCuentas(){
-        syncServices.syncAccounts("");
-    }
 }

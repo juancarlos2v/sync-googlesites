@@ -11,9 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.Collections;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class GoogleSiteServices {
@@ -29,7 +26,7 @@ public class GoogleSiteServices {
 
     private final Logger log = LoggerFactory.getLogger(GoogleSiteServices.class);
 
-    public Accounts getAccounts(String nextPageToken){
+    public Accounts getGroups(String nextPageToken){
 
         String token = authService.getToken();
         String url="/accounts?pageToken="+nextPageToken;
@@ -49,7 +46,7 @@ public class GoogleSiteServices {
 
     }
 
-    public Locations getLocations(String nameAccount){
+    public Locations getSites(String nameAccount){
         String token = authService.getToken();
         String locationParams="/locations?readMask=storeCode,regularHours,name,languageCode,title,phoneNumbers," +
                 "categories,storefrontAddress,websiteUri,regularHours,specialHours,serviceArea,labels,adWordsLocationExtensions," +
