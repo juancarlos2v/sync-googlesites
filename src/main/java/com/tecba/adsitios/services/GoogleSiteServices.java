@@ -49,8 +49,8 @@ public class GoogleSiteServices {
                 .block();
     }
 
-    public Locations getSites(String nameAccount){
-        String token = authService.getToken();
+    public Locations getSites(String nameAccount, String token){
+        //String token = authService.getToken();
         String locationParams="/locations?readMask=storeCode,regularHours,name,languageCode,title,phoneNumbers," +
                 "categories,storefrontAddress,websiteUri,regularHours,specialHours,serviceArea,labels,adWordsLocationExtensions," +
                 "latlng,openInfo,metadata,profile,relationshipData,moreHours";

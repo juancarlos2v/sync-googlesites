@@ -1,6 +1,8 @@
 package com.tecba.adsitios.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import lombok.Data;
 
 import java.lang.reflect.Array;
@@ -20,9 +22,9 @@ public class Locations {
     @Data
     public static class Location{
         @JsonProperty("name")
-        private String name; // "locations/4277855925007491046"
+        private String name;// "locations/4277855925007491046"
         @JsonProperty("title")
-        private String title; // "Capilla Cementerio de Flores"
+        private String title;// "Capilla Cementerio de Flores"
         @JsonProperty("categories")
         private Categories categories; // para obtener category.displayName
         @JsonProperty("storefrontAddress")
@@ -48,7 +50,8 @@ public class Locations {
         private String postalCode; // "C1406"
         private String administrativeArea; // "Ciudad Autónoma de Buenos Aires"
         private String locality; // "Flores"
-        private ArrayList<String> addressLines; // ["Avenida Varela 1700"]
+        @JsonSetter(nulls = Nulls.AS_EMPTY)
+        private List<String> addressLines=new ArrayList<>(); // ["Avenida Varela 1700"]
 
     }
 

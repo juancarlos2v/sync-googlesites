@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -53,25 +54,44 @@ public class SyncServices {
 
     @Transactional
     public void syncAllSites() {
+
+        String token= authService.getToken();
         List<Group> groups = groupRepository.findAll();
         int contadorSitio = 0;
         siteRepository.deleteAll();
 
         for (Group group : groups) {
-            Locations locations = googleSiteServices.getSites("/" + group.getName());
+            Locations locations = googleSiteServices.getSites("/" + group.getName(),token);
             logger.info("================={}=================", group.getAccountName());
 
             if (locations.getLocations() != null) {
                 for (Locations.Location location : locations.getLocations()) {
 
+                    String address = Optional.ofNullable(location.getStorefrontAddress())
+                            .map(Locations.StorefrontAddress::getAddressLines)
+                            .filter(list -> !list.isEmpty())
+                            .map(list -> list.get(0))
+                            .orElse("");
+
+                    String province = Optional.ofNullable(location.getStorefrontAddress())
+                            .map(Locations.StorefrontAddress::getLocality)
+                            .orElse("");
+
+                    String postalCode = Optional.ofNullable(location.getStorefrontAddress())
+                            .map(Locations.StorefrontAddress::getPostalCode)
+                            .orElse("");
+
+                    String title = Optional.ofNullable(location.getTitle()).orElse("");
+
+
                     logger.info("{} :{}", contadorSitio, location.getTitle());
-                    logger.info("    {}", location.getStorefrontAddress().getAddressLines().getFirst());
+                    logger.info("    {}", address);
                     contadorSitio++;
                     siteRepository.save(Site.builder()
-                            .title(location.getTitle())
-                            .address(location.getStorefrontAddress().getAddressLines().getFirst())
-                            .province(location.getStorefrontAddress().getLocality())
-                            .postalCode(location.getStorefrontAddress().getPostalCode())
+                            .title(title)
+                            .address(address)
+                            .province(province)
+                            .postalCode(postalCode)
                             .build());
                 }
             }
