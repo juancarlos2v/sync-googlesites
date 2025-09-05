@@ -1,12 +1,16 @@
 package com.tecba.adsitios.entities;
 
 
+import lombok.Builder;
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Map;
 
 @Document(collection = "sites")
+@Data
+@Builder
 public class Site {
 
     @Id

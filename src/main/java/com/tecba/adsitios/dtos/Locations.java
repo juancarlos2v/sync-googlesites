@@ -3,6 +3,8 @@ package com.tecba.adsitios.dtos;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +48,7 @@ public class Locations {
         private String postalCode; // "C1406"
         private String administrativeArea; // "Ciudad Autónoma de Buenos Aires"
         private String locality; // "Flores"
-        private String[] addressLines; // ["Avenida Varela 1700"]
+        private ArrayList<String> addressLines; // ["Avenida Varela 1700"]
 
     }
 

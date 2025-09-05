@@ -11,6 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 public class GoogleSiteServices {
@@ -22,15 +24,17 @@ public class GoogleSiteServices {
     @Value("${google.sites.account.management}")
     private  String sitesAccountManagement;
 
+    private  String currentToken;
+    private  Instant tokenExpiry;
+
     private final AuthService authService;
 
     private final Logger log = LoggerFactory.getLogger(GoogleSiteServices.class);
 
-    public Accounts getGroups(String nextPageToken){
+    public Accounts getGroups(String nextPageToken,String token){
 
-        String token = authService.getToken();
+        //String token = authService.getToken();
         String url="/accounts?pageToken="+nextPageToken;
-
 
         WebClient client = WebClient.builder()
                 .baseUrl(sitesAccountManagement)
@@ -43,7 +47,6 @@ public class GoogleSiteServices {
                 .retrieve()
                 .bodyToMono(Accounts.class)
                 .block();
-
     }
 
     public Locations getSites(String nameAccount){

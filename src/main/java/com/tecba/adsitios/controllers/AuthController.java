@@ -18,9 +18,6 @@ public class AuthController {
     private final AuthService authService;
     private final SyncServices syncServices;
 
-    @GetMapping("/cuentas")
-    public Accounts sincronizarCuentas() {
-        return googleSiteServices.getGroups("");
-    }
+
 
 }

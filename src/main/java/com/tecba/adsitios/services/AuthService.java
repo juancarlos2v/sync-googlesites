@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Instant;
 import java.util.Map;
 
 @Service
@@ -30,7 +31,15 @@ public class AuthService {
     @Value("${google.refresh.token}")
     private   String refreshToken;
 
-    public String getToken(){
+    private String currentToken;
+    private Instant tokenExpiry; // guarda cuándo expira el token
+
+    public synchronized String getToken(){
+
+        if (currentToken != null && tokenExpiry != null && Instant.now().isBefore(tokenExpiry)) {
+            return currentToken;
+        }
+
         WebClient client = webClientBuilder
                 .baseUrl(urlAuth)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -43,12 +52,21 @@ public class AuthService {
                 "grant_type",grantType
         );
 
-        return client.post()
+        AuthResponse  response = client.post()
                 .bodyValue(body)
                 .retrieve()
                 .bodyToMono(AuthResponse.class)
-                .map(AuthResponse::getAccessToken)
+                //.map(AuthResponse::getAccessToken)
                 .block();
+
+
+        // guardamos la fecha de expiración (suponiendo que AuthResponse tenga expiresIn en segundos)
+        //assert response != null;
+        currentToken = response.getAccessToken();
+        tokenExpiry = Instant.now().plusSeconds(response.getExpiresIn() - 30); // restamos 30s para margen
+
+        logger.info("Nuevo token generado, expira en: {}", tokenExpiry);
+        return currentToken;
 
     }
 
