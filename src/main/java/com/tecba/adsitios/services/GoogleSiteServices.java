@@ -49,11 +49,11 @@ public class GoogleSiteServices {
                 .block();
     }
 
-    public Locations getSites(String nameAccount, String token){
+    public Locations getSites(String nameAccount, String token,String nextPageToken){
         //String token = authService.getToken();
         String locationParams="/locations?readMask=storeCode,regularHours,name,languageCode,title,phoneNumbers," +
                 "categories,storefrontAddress,websiteUri,regularHours,specialHours,serviceArea,labels,adWordsLocationExtensions," +
-                "latlng,openInfo,metadata,profile,relationshipData,moreHours";
+                "latlng,openInfo,metadata,profile,relationshipData,moreHours&pageToken="+nextPageToken;
 
         WebClient client = WebClient.builder()
                 .baseUrl(sitesInformation)

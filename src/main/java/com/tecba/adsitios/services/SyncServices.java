@@ -29,7 +29,7 @@ public class SyncServices {
     public void syncGroups(String nextPageToken) {
 
         String token = authService.getToken();
-        Accounts accounts = googleSiteServices.getGroups(nextPageToken,token);
+        Accounts accounts = googleSiteServices.getGroups(nextPageToken, token);
 
         if (nextPageToken == null || nextPageToken.isBlank()) {
             groupRepository.deleteAll();
@@ -55,47 +55,57 @@ public class SyncServices {
     @Transactional
     public void syncAllSites() {
 
-        String token= authService.getToken();
+        String token = authService.getToken();
         List<Group> groups = groupRepository.findAll();
         int contadorSitio = 0;
         siteRepository.deleteAll();
 
         for (Group group : groups) {
-            Locations locations = googleSiteServices.getSites("/" + group.getName(),token);
             logger.info("================={}=================", group.getAccountName());
 
-            if (locations.getLocations() != null) {
-                for (Locations.Location location : locations.getLocations()) {
+            String nextPageToken = "";
 
-                    String address = Optional.ofNullable(location.getStorefrontAddress())
-                            .map(Locations.StorefrontAddress::getAddressLines)
-                            .filter(list -> !list.isEmpty())
-                            .map(list -> list.get(0))
-                            .orElse("");
+            do {
+                Locations locations = googleSiteServices.getSites("/" + group.getName(), token, nextPageToken);
 
-                    String province = Optional.ofNullable(location.getStorefrontAddress())
-                            .map(Locations.StorefrontAddress::getLocality)
-                            .orElse("");
+                if (locations.getLocations() != null) {
+                    for (Locations.Location location : locations.getLocations()) {
+                        String address = Optional.ofNullable(location.getStorefrontAddress())
+                                .map(Locations.StorefrontAddress::getAddressLines)
+                                .filter(list -> !list.isEmpty())
+                                .map(list -> list.get(0))
+                                .orElse("");
 
-                    String postalCode = Optional.ofNullable(location.getStorefrontAddress())
-                            .map(Locations.StorefrontAddress::getPostalCode)
-                            .orElse("");
+                        String province = Optional.ofNullable(location.getStorefrontAddress())
+                                .map(Locations.StorefrontAddress::getLocality)
+                                .orElse("");
 
-                    String title = Optional.ofNullable(location.getTitle()).orElse("");
+                        String postalCode = Optional.ofNullable(location.getStorefrontAddress())
+                                .map(Locations.StorefrontAddress::getPostalCode)
+                                .orElse("");
 
+                        String title = Optional.ofNullable(location.getTitle()).orElse("");
 
-                    logger.info("{} :{}", contadorSitio, location.getTitle());
-                    logger.info("    {}", address);
-                    contadorSitio++;
-                    siteRepository.save(Site.builder()
-                            .title(title)
-                            .address(address)
-                            .province(province)
-                            .postalCode(postalCode)
-                            .build());
+                        logger.info("{}",location.getName());
+                        logger.info("{} :{}", contadorSitio, location.getTitle());
+                        logger.info("    {}", address);
+                        contadorSitio++;
+
+                        siteRepository.save(Site.builder()
+                                .title(title)
+                                .address(address)
+                                .province(province)
+                                .postalCode(postalCode)
+                                .build());
+                    }
                 }
-            }
+
+                // Actualizamos el token para la siguiente iteración
+                nextPageToken = locations.getNextPageToken();
+
+            } while (nextPageToken != null && !nextPageToken.isBlank());
         }
+
 
     }
 
